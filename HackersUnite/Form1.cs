@@ -17,6 +17,17 @@ namespace HackersUnite
         public HackersUnite()
         {
             InitializeComponent();
+
+            /***********************************
+            * Checks to see if agent subfolder *
+            * exists. If not then create       *
+            ***********************************/
+            string path = @"agents";
+            if(!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            /************************************/
         }
 
         private void HackersUnite_Load(object sender, EventArgs e)
@@ -27,6 +38,7 @@ namespace HackersUnite
             this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
+            /********************************************/
 
             this.BackColor = ColorTranslator.FromHtml("#181818"); //Sets the background to Charcoal
             exitbutton.Location = new Point(1100, 500); //Sets Exit Button location
@@ -81,7 +93,47 @@ namespace HackersUnite
             if (createpassword.Text == createconfirmpassword.Text) //Checks to see if the passwords match
             {
                 capass = createpassword.Text; //If passwords match then sets the variable from createpassword textbox
-                File.WriteAllText("agents/" + causer + ".hu", "Name:" + causer + "\r\n Password:" + capass + "\r\n Level:Newbie \r\n Money:5000c");
+                string lines = "name:" + causer + "\r\npassword:" + capass + "\r\nlevel:newbie \r\nmoney:5000c"; //Sets string with info that is going in the saved game file
+                /**************************
+                * Writes string to a file *
+                **************************/
+                StreamWriter file = new StreamWriter(@"agents\" + causer + ".hu");
+                file.WriteLine(lines);
+                file.Close();
+                /******************************************************************/
+
+                /********************************
+                * Converts Saved Game to binary *
+                ********************************/
+                FileStream fs = new FileStream(@"agents\" + causer + ".hu", FileMode.Create);
+                BinaryWriter w = new BinaryWriter(fs);
+                for (int i = 0; i < 100; i++)
+                {
+                    w.Write((int)i);
+                }
+                w.Close();
+                fs.Close();
+                fs = new FileStream(@"agents\" + causer + ".hu", FileMode.Open, FileAccess.Read);
+                BinaryReader r = new BinaryReader(fs);
+                for(int i = 0; i < 100; i++)
+                {
+                    Console.WriteLine(r.ReadInt32());
+                }
+                r.Close();
+                fs.Close();
+                Console.WriteLine(Console.Read());
+                /********************************************************************************/
+
+                agentlist.Visible = true; //Sets the Agent List visable
+                agentloginbox.Visible = true; //Sets the Agent Login Box visable
+                newagentbutton.Visible = true; //Sets the New Agent Button visable
+                newagentlabel.Visible = true; //Sets the New Agent Button Label visable
+                newagentcancelbutton.Visible = false; //Sets the New Agent Cancel button invisable
+                newagentcancellabel.Visible = false; //Sets the New Agent Cancel Label invisable
+                createagentbox.Visible = false; //Sets the Create Agent Box invisable
+                createusername.Text = "";
+                createpassword.Text = "";
+                createconfirmpassword.Text = "";
             }
             else //If the passwords do not match
             {
